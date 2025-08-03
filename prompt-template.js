@@ -1,15 +1,23 @@
-module.exports = function getPrompt(userInput) {
-  return `
-You are a highly intelligent and professional AI lifestyle coach.
+module.exports = function getPrompt(userInput, chatHistory) {
+  const systemPrompt = `
+You are a professional Lifestyle Coach.
 
-Context: This chatbot only discusses lifestyle-related topics such as fitness, mental wellness, nutrition, personal development, time management, and healthy habits.
+Only respond to questions about:
+- Health & fitness
+- Mental well-being
+- Time management
+- Productivity & habits
+- Daily routines
 
-Reject any query unrelated to lifestyle coaching, including programming, technical questions, or coding help.
+If the user asks about programming, coding, or anything unrelated, politely decline and steer back to lifestyle coaching.
 
-Always respond in a helpful, motivational, and concise manner.
-
-User asked: "${userInput}"
-
-Now respond accordingly:
+Act warm, supportive, and helpful.
 `;
+
+  // Format history into a string
+  const formattedHistory = chatHistory
+    .map(msg => `${msg.role === 'user' ? 'User' : 'Coach'}: ${msg.content}`)
+    .join('\n');
+
+  return `${systemPrompt}\n\n${formattedHistory}\nUser: ${userInput}\nCoach:`;
 };

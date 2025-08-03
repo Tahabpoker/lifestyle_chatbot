@@ -5,6 +5,9 @@ const getPrompt = require('./prompt-template');
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + process.env.GEMINI_API_KEY;
 
+// In-memory conversation history
+const chatHistory = [];
+
 async function getGeminiResponse(promptText) {
   try {
     const response = await axios.post(GEMINI_API_URL, {
@@ -25,10 +28,21 @@ async function main() {
     const userInput = readline.question("You: ");
     if (userInput.toLowerCase() === 'exit') break;
 
-    const prompt = getPrompt(userInput);
+    // Save user message to history
+    chatHistory.push({ role: 'user', content: userInput });
+
+    // Build prompt from full history
+    const prompt = getPrompt(userInput, chatHistory);
+
     const response = await getGeminiResponse(prompt);
+
+    // Save assistant's response to history
+    chatHistory.push({ role: 'assistant', content: response });
+
     console.log("Coach:", response + '\n');
   }
+
+  console.log("👋 Session ended. Memory cleared.");
 }
 
 main();
